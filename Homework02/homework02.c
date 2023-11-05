@@ -48,25 +48,26 @@ int masterTask( int id, int numWorkers ){
   double startTime = 0.0, totalTime = 0.0; startTime = MPI_Wtime(); // records the start time
 
   int sendValue = id;
-  int receivedValue = -1;
+  int receivedValue = -3;
 
   MPI_Status status;
 
-  printf("Rank: %d", id);
+  printf("Rank: %d \n", id); // Create a message containing its rank.
+  printf("Number of Nodes: %d\n", numWorkers);
 
   while (receivedValue != id) {
-    MPI_Send(&sendValue, 1, MPI_INT, (id+1) % numWorkers, 1, MPI_COMM_WORLD); // send to next worker
-    MPI_Recv(&receivedValue, 1, MPI_FLOAT, (id-1) % numWorkers, 2, MPI_COMM_WORLD, &status); // recieve from previous worker
-    printf("%d", receivedValue);
+    MPI_Send(&sendValue, 1, MPI_INT, id + 1, 1, MPI_COMM_WORLD); // Send that message to the next process (i.e., with rank 1)
+    MPI_Recv(&receivedValue, 1, MPI_FLOAT, numWorkers - 1, 1, MPI_COMM_WORLD, &status); // Receive a message from the last worker process (i.e., with rank n-1)
+    printf(" %d", receivedValue); // Print the message received to the screen
     sendValue = receivedValue;
   }
 
   totalTime = MPI_Wtime() - startTime;
-  printf("Time: %f secs", totalTime);
+  printf("\nTime: %f secs\n", totalTime); // Print the time required for the message to traverse the ring
   return 0;
 }
 
-int workerTask(int id, int numWorkers){
+int workerTask(int id, int numWorkers) {
 /* workerTask() 
 * Receive a message from the process "before" it in the ring (i.e., rank i-1),
 * Create a new message consisting of the message just received, followed by a space, followed by their rank (e.g., i), and
@@ -76,16 +77,14 @@ int workerTask(int id, int numWorkers){
 * paramater numWorkers, the number of workers.
 */
   int sendValue = id;
-  int receivedValue = -1;
+  int receivedValue = -2;
 
   MPI_Status status;
 
-  while(receivedValue != id){
-    MPI_Recv(&receivedValue, 1, MPI_FLOAT, (id-1) % numWorkers, 2, MPI_COMM_WORLD, &status); // recieve from previous worker
-    MPI_Send(&sendValue, 1, MPI_INT, (id+1) % numWorkers, 1, MPI_COMM_WORLD); // send to next worker
-    //printf("%d : %d", id, receivedValue);
+  while(receivedValue != id) {
+    MPI_Recv(&receivedValue, 1, MPI_FLOAT, id - 1, 1, MPI_COMM_WORLD, &status); // recieve from previous worker
+    MPI_Send(&sendValue, 1, MPI_INT, ( id + 1 ) % numWorkers, 1, MPI_COMM_WORLD); // send to next worker
     sendValue = receivedValue;
   }
   return 0;
 }
-
