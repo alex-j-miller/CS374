@@ -1,18 +1,10 @@
 /* firestarter.c 
  * David Joiner
  * Usage: Fire [forestSize(20)] [numTrials(5000)] * [numProbabilities(101)] [showGraph(1)]
- * 
- * Alex Miller
- * Calvin University
- * 15 Oct 2023
- * CS 374 HW03
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include "X-graph.h"
-#include <mpi.h>
-#include "parallelLoopChunks.h"
-#include <limits.h>
 
 #define UNBURNT 0
 #define SMOLDERING 1
@@ -49,21 +41,10 @@ int main(int argc, char ** argv) {
     int i_prob;
     int n_probs=101;
     int do_display=1;
-    int * iCount;
-    double startTime = 0.0;
-    double * totalTime;
-    int numProcesses = 0;
-    int id = 0;
-    double * total_percent;
-    int * total_iter;
     xgraph thegraph;
-    const int MASTER = 0;
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &id);
-    MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
-    
     // check command line arguments
+
     if (argc > 1) {
         sscanf(argv[1],"%d",&forest_size);
     }
@@ -83,51 +64,28 @@ int main(int argc, char ** argv) {
     forest=allocate_forest(forest_size);
     prob_spread = (double *) malloc (n_probs*sizeof(double));
     percent_burned = (double *) malloc (n_probs*sizeof(double));
-    iCount = (int *) malloc (n_probs*sizeof(int));
-    total_percent = (double *) malloc (n_probs*sizeof(double));
-    total_iter = (int *) malloc (n_probs*sizeof(int));
-    totalTime = (double *) malloc (n_probs*sizeof(double));
 
     // for a number of probabilities, calculate
     // average burn and output
     prob_step = (prob_max-prob_min)/(double)(n_probs-1);
-    if (id == MASTER) {
-        printf("Probability of fire spreading | Average percent burned | Computation Time | Number of Iterations\n");
-    }
-    
-    for (i_trial = id; i_trial < n_trials; i_trial += numProcesses) {
-        for (i_prob = 0 ; i_prob < n_probs; i_prob++) {
-            startTime = MPI_Wtime();
-            prob_spread[i_prob] = prob_min + (double)i_prob * prob_step;
-            percent_burned[i_prob]=0.0;
-
-            iCount[i_prob] = burn_until_out(forest_size,forest,prob_spread[i_prob],
+    printf("Probability of fire spreading, Average percent burned\n");
+    for (i_prob = 0 ; i_prob < n_probs; i_prob++) {
+        //for a number of trials, calculate average
+        //percent burn
+        prob_spread[i_prob] = prob_min + (double)i_prob * prob_step;
+        percent_burned[i_prob]=0.0;
+        for (i_trial=0; i_trial < n_trials; i_trial++) {
+            //burn until fire is gone
+            burn_until_out(forest_size,forest,prob_spread[i_prob],
                 forest_size/2,forest_size/2);
             percent_burned[i_prob]+=get_percent_burned(forest_size,forest);
-
-
-            totalTime[i_prob] = MPI_Wtime() - startTime;
         }
+        percent_burned[i_prob]/=n_trials;
+
+        // print output
+        printf("%lf , %lf\n",prob_spread[i_prob],
+            percent_burned[i_prob]);
     }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    // need to avg percent burned and iterations for each probabilty
-    for (i_prob = 0 ; i_prob < n_probs; i_prob++) {
-        MPI_Reduce(&percent_burned[i_prob], &total_percent[i_prob], 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-        MPI_Reduce(&iCount[i_prob], &total_iter[i_prob], 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-        if(id == 0){
-            printf("%lf \t %lf\t %f \t%d\n", prob_spread[i_prob], total_percent[i_prob]/numProcesses, totalTime[i_prob], iCount[i_prob]);
-        }
-    }
-
-    MPI_Finalize();
-
-    // for (i_prob = 0; i_prob < n_probs; i_prob++) {
-    //     printf("%lf \t %lf\t %f \t%d\n", prob_spread[i_prob], total_percent[i_prob]/numProcesses, totalTime[i_prob], iCount[i_prob]);
-    // }
-
-
 
     // plot graph
     if (do_display==1) {
@@ -140,10 +98,6 @@ int main(int argc, char ** argv) {
     delete_forest(forest_size,forest);
     free(prob_spread);
     free(percent_burned);
-    free(iCount);
-    free(total_percent);
-    free(total_iter);
-    free(totalTime);
     return 0;
 }
 
@@ -227,7 +181,7 @@ void light_tree(int forest_size, int ** forest, int i, int j) {
 }
 
 boolean fire_spreads(double prob_spread) {
-    if ((double)rand()/(double)RAND_MAX < prob_spread)
+    if ((double)rand()/(double)RAND_MAX < prob_spread) 
         return true;
     else
         return false;

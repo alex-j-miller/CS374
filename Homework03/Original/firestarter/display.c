@@ -13,7 +13,7 @@
 char* getDisplay() {
 	char * display = getenv("DISPLAY");
 	if ( !display ) {
-		//fprintf(stderr, "\n*** Fatal: DISPLAY variable not set.\n");
+		fprintf(stderr, "\n*** Fatal: DISPLAY variable not set.\n");
 		exit(1);
 	}
 	return display;
