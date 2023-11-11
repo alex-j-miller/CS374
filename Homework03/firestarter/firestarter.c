@@ -49,9 +49,8 @@ int main(int argc, char ** argv) {
     int i_prob;
     int n_probs=101;
     int do_display=1;
-    int * iCount;
-    double startTime = 0.0;
-    double * totalTime;
+    int * iter_count;
+    double start_time = 0;
     int numProcesses = 0;
     int id = 0;
     double * total_percent;
@@ -62,6 +61,8 @@ int main(int argc, char ** argv) {
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
     MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
+
+    start_time = MPI_Wtime();
     
     // check command line arguments
     if (argc > 1) {
@@ -83,67 +84,65 @@ int main(int argc, char ** argv) {
     forest=allocate_forest(forest_size);
     prob_spread = (double *) malloc (n_probs*sizeof(double));
     percent_burned = (double *) malloc (n_probs*sizeof(double));
-    iCount = (int *) malloc (n_probs*sizeof(int));
+    iter_count = (int *) malloc (n_probs*sizeof(int));
     total_percent = (double *) malloc (n_probs*sizeof(double));
     total_iter = (int *) malloc (n_probs*sizeof(int));
-    totalTime = (double *) malloc (n_probs*sizeof(double));
 
     // for a number of probabilities, calculate
     // average burn and output
     prob_step = (prob_max-prob_min)/(double)(n_probs-1);
     if (id == MASTER) {
-        printf("Probability of fire spreading | Average percent burned | Computation Time | Number of Iterations\n");
+        printf("Probability of fire spreading | Average percent burned | Number of Iterations\n");
     }
-    
-    for (i_trial = id; i_trial < n_trials; i_trial += numProcesses) {
-        for (i_prob = 0 ; i_prob < n_probs; i_prob++) {
-            startTime = MPI_Wtime();
-            prob_spread[i_prob] = prob_min + (double)i_prob * prob_step;
-            percent_burned[i_prob]=0.0;
 
-            iCount[i_prob] = burn_until_out(forest_size,forest,prob_spread[i_prob],
+    // set up the initial values of the array
+    for (i_prob = 0; i_prob < n_probs; i_prob++) {
+        prob_spread[i_prob] = prob_min + (double)i_prob * prob_step;
+        percent_burned[i_prob]=0.0;
+        iter_count[i_prob]=0;
+    }
+
+    for (i_trial = id; i_trial < n_trials; i_trial += numProcesses) {
+        for (i_prob = 0; i_prob < n_probs; i_prob++) {
+            iter_count[i_prob] = burn_until_out(forest_size,forest,prob_spread[i_prob],
                 forest_size/2,forest_size/2);
             percent_burned[i_prob]+=get_percent_burned(forest_size,forest);
-
-
-            totalTime[i_prob] = MPI_Wtime() - startTime;
+            
         }
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Reduce(percent_burned, total_percent, n_probs, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(iter_count, total_iter, n_probs, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    // need to avg percent burned and iterations for each probabilty
-    for (i_prob = 0 ; i_prob < n_probs; i_prob++) {
-        MPI_Reduce(&percent_burned[i_prob], &total_percent[i_prob], 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-        MPI_Reduce(&iCount[i_prob], &total_iter[i_prob], 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-        if(id == 0){
-            printf("%lf \t %lf\t %f \t%d\n", prob_spread[i_prob], total_percent[i_prob]/numProcesses, totalTime[i_prob], iCount[i_prob]);
+    // do some clean up
+    if (id == MASTER) {
+        for (i_prob = 0; i_prob < n_probs; i_prob++) {
+            total_percent[i_prob]/=n_trials;
+            printf("%lf \t %lf \t%d\n", prob_spread[i_prob], total_percent[i_prob], iter_count[i_prob]);
+        }
+
+        printf("Total Time: %f", MPI_Wtime() - start_time);
+
+        // plot graph
+        if (do_display==1) {
+            xgraphSetup(&thegraph,300,300);
+            xgraphDraw(&thegraph,n_probs,0,0,1,1,prob_spread,total_percent);
+            pause();
         }
     }
 
     MPI_Finalize();
 
-    // for (i_prob = 0; i_prob < n_probs; i_prob++) {
-    //     printf("%lf \t %lf\t %f \t%d\n", prob_spread[i_prob], total_percent[i_prob]/numProcesses, totalTime[i_prob], iCount[i_prob]);
-    // }
-
-
-
-    // plot graph
-    if (do_display==1) {
-        xgraphSetup(&thegraph,300,300);
-        xgraphDraw(&thegraph,n_probs,0,0,1,1,prob_spread,percent_burned);
-        pause();
-    }
+    
+    
 
     // clean up
     delete_forest(forest_size,forest);
     free(prob_spread);
     free(percent_burned);
-    free(iCount);
+    free(iter_count);
     free(total_percent);
     free(total_iter);
-    free(totalTime);
     return 0;
 }
 
