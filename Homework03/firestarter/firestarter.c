@@ -37,7 +37,7 @@ extern void print_forest(int, int **);
 
 int main(int argc, char ** argv) {
     // initial conditions and variable definitions
-    int forest_size=20;
+    int forest_size=80;
     double * prob_spread;
     double prob_min=0.0;
     double prob_max=1.0;
@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
     int n_trials=5000;
     int i_prob;
     int n_probs=101;
-    int do_display=1;
+    int do_display=0; // show the display
     int * iter_count;
     double start_time = 0;
     int numProcesses = 0;
@@ -57,6 +57,7 @@ int main(int argc, char ** argv) {
     int * total_iter;
     xgraph thegraph;
     const int MASTER = 0;
+    unsigned start = -1, stop = -1;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &id);
@@ -88,6 +89,8 @@ int main(int argc, char ** argv) {
     total_percent = (double *) malloc (n_probs*sizeof(double));
     total_iter = (int *) malloc (n_probs*sizeof(int));
 
+    getChunkStartStopValues(id, numProcesses, n_trials, &start, &stop);
+
     // for a number of probabilities, calculate
     // average burn and output
     prob_step = (prob_max-prob_min)/(double)(n_probs-1);
@@ -102,7 +105,7 @@ int main(int argc, char ** argv) {
         iter_count[i_prob]=0;
     }
 
-    for (i_trial = id; i_trial < n_trials; i_trial += numProcesses) {
+    for (i_trial = start; i_trial < stop; ++i_trial) {
         for (i_prob = 0; i_prob < n_probs; i_prob++) {
             iter_count[i_prob] = burn_until_out(forest_size,forest,prob_spread[i_prob],
                 forest_size/2,forest_size/2);
@@ -121,7 +124,7 @@ int main(int argc, char ** argv) {
             printf("%lf \t %lf \t%d\n", prob_spread[i_prob], total_percent[i_prob], iter_count[i_prob]);
         }
 
-        printf("Total Time: %f", MPI_Wtime() - start_time);
+        printf("Total Time: %f\n", MPI_Wtime() - start_time);
 
         // plot graph
         if (do_display==1) {
