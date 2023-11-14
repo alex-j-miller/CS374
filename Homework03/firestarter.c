@@ -37,7 +37,7 @@ extern void print_forest(int, int **);
 
 int main(int argc, char ** argv) {
     // initial conditions and variable definitions
-    int forest_size=20;
+    int forest_size=80;
     double * prob_spread;
     double prob_min=0.0;
     double prob_max=1.0;
