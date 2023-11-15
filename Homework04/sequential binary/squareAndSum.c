@@ -50,50 +50,14 @@ int main(int argc, char * argv[])
 
   fclose(filePtr);
 
+  double afterArrTime = MPI_Wtime() - start_time;
+  double sum_start = MPI_Wtime();
   double sum = arraySquareAndSum(arrayPtr, numItems);
 
-  printf("The sum of the squares of the values in the file '%s' is %g\n\tTotal Time: %f\n", argv[1], sum, MPI_Wtime() - start_time);
+  double sumTime = MPI_Wtime() - sum_start;
+
+  printf("The sum of the squares of the values in the file '%s' is %g\nTimes: %f, %f, %f\n", argv[1], sum, afterArrTime, sumTime, afterArrTime + sumTime);
   return 0;
-}
-
-/* readArray fills an array with Item values from a file.
- * Receive: fileName, a char*,
- *          a, the address of a pointer to an Item array,
- *          n, the address of an int.
- * PRE: fileName contains N, followed by N double values.
- * POST: a points to a dynamically allocated array
- *        containing the N values from fileName
- *        and n == N.
- */
-
-void readArray(char * fileName, Item** a, int * n) {
-  int count, howMany;
-  Item* tempA;
-  FILE * fin;
-
-  fin = fopen(fileName, "rb");
-  if (fin == NULL) {
-    fprintf(stderr, "\n*** Unable to open input file '%s'\n\n",
-                     fileName);
-    exit(1);
-  }
-
-  // fscanf(fin, "%d", &howMany);
-  fread(&howMany, sizeof(howMany), 1, fin);
-  tempA = calloc(howMany, sizeof(Item));
-  if (tempA == NULL) {
-    fprintf(stderr, "\n*** Unable to allocate %d-length array",
-                     howMany);
-    exit(1);
-  }
-
-  for (count = 0; count < howMany; count++)
-   fscanf(fin, "%lf", &tempA[count]);
-
-  fclose(fin);
-
-  *n = howMany;
-  *a = tempA;
 }
 
 /* arraySquareAndSum sums the squares of the values

@@ -16,6 +16,7 @@
 
 #include <stdio.h>      /* I/O */
 #include <stdlib.h>     /* calloc(), exit(), etc. */
+#include <mpi.h>
 
 typedef double Item;
 
@@ -24,6 +25,8 @@ double arraySquareAndSum(Item* a, int numValues);
 
 int main(int argc, char * argv[])
 {
+  MPI_Init(&argc, &argv);
+  double start_time = MPI_Wtime();
   int  howMany;
   Item sum;
   Item* a;
@@ -34,9 +37,11 @@ int main(int argc, char * argv[])
   }
   
   readArray(argv[1], &a, &howMany);
+  double afterArrTime = MPI_Wtime() - start_time;
+  double sum_start = MPI_Wtime();
   sum = arraySquareAndSum(a, howMany);
-  printf("The sum of the squares of the values in the file '%s' is %g\n",
-           argv[1], sum);
+  double sumTime = MPI_Wtime() - sum_start;
+  printf("The sum of the squares of the values in the file '%s' is %g\nTimes: %f, %f, %f\n", argv[1], sum, afterArrTime, sumTime, afterArrTime + sumTime);
 
   free(a);
 

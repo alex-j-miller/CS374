@@ -35,11 +35,11 @@ int main(int argc, char * argv[])
   int numProcesses = -1;
   int id = -1;
   int chunkSize = -1;
-  int* scatterArray = NULL;
+  // int* scatterArray = NULL;
   int* chunkSizeArray = NULL;
   int* offsetArray = NULL;
-  int* chunkArray = NULL;
-  // int* gatherArray = NULL;
+  double* chunkArray = NULL;
+  double* gatherArray = NULL;
 
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
@@ -91,50 +91,28 @@ int main(int argc, char * argv[])
       }
   }
 
-  printf("BEFORE Scatter %d scatterArray", id);
+  printf("BEFORE Scatter %d arrayPtr\n", id);
 
   chunkSize = chunkSizeArray[id];
-  chunkArray = (int*) malloc(chunkSize * sizeof(int));          // allocate chunk array
+  chunkArray = (double*) malloc(chunkSize * sizeof(double));          // allocate chunk array
   
-  printf("BEFORE Scatter %d chunkArray", id);
-  MPI_Scatterv(scatterArray, chunkSizeArray, offsetArray, MPI_INT, chunkArray, chunkSize, MPI_INT, MASTER, MPI_COMM_WORLD); // scatter scatterArray into chunkArray
-  printf("AFTER Scatter %d chunkArray", id);
+  printf("BEFORE Scatter %d chunkArray\n", id);
+  MPI_Scatterv(arrayPtr, chunkSizeArray, offsetArray, MPI_DOUBLE, chunkArray, chunkSize, MPI_DOUBLE, MASTER, MPI_COMM_WORLD); // scatter scatterArray into chunkArray
+  printf("AFTER Scatter %d chunkArray\n", id);
   for (unsigned i = 0; i < chunkSize; ++i) { // compute using chunk
     chunkArray[i] *= 2;
   }
-  printf("AFTER doubling %d chunkArray", id);
-  if (id == 0) {                                           // master clean up                                                                           free(gatherArray); 
-    free(scatterArray);
+  printf("AFTER doubling %d chunkArray\n", id);
+
+  gatherArray = (double*)malloc(numItems * sizeof(double));
+  MPI_Gatherv(chunkArray, chunkSize, MPI_DOUBLE, gatherArray, chunkSizeArray, offsetArray, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
+
+
+  if (id == MASTER) {  // master clean up     
+    free(gatherArray); 
+    free(arrayPtr);
   }
-  
-  // int numSent = numItems / numProcesses;
-  // double* aRcv = (double*) calloc( numSent , sizeof(double) );
-  // MPI_Barrier(MPI_COMM_WORLD);
-  // // MPI_Scatter(arrayPtr, numSent, MPI_DOUBLE, aRcv, numSent, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  // MPI_Scatter(sendBuffer, numSent, MPI_DOUBLE, receiveBuffer, numSent, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  // double sub_sum = arraySquareAndSum(aRcv, numSent);
-  // double* sub_sums = NULL;
 
-  // if (id == 0) {
-  //   sub_sums = calloc(sizeof(double) , numProcesses);
-  // }
-
-  // // MPI_Gather(&sub_sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  // MPI_Gather(&sub_sum, 1, MPI_DOUBLE, sub_sums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-  // double sum;
-  // if (id == 0) {
-  //   sum = arraySquareAndSum(sub_sums, numProcesses);
-  // }
-
-  // printf("The sum of the squares of the values in the file '%s' is %g\n\tTotal Time: %f\n", argv[1], sum, MPI_Wtime() - start_time);
-  
-  // if (id == 0) {
-  //   free(sendBuffer);
-  //   free(receiveBuffer);
-  //   free(arrayPtr);
-  //   free(sub_sums);
-  // }
   printf("Time: %f", MPI_Wtime() - start_time);
   MPI_Finalize();
   return 0;
