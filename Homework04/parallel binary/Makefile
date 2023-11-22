@@ -2,9 +2,9 @@ PROG   = parSquareSum
 SRC    = $(PROG).cpp
 CC     = mpic++
 CFLAGS = -Wall -ansi -pedantic -std=c++11
-LFLAGS = -o $(PROG) 
+LFLAGS = -o $(PROG) -lm
 
-$(PROG): $(SRC) OO_MPI_IO.h
+$(PROG): $(SRC) OO_MPI_IO.h 
 	$(CC) $(CFLAGS) $(SRC) $(LFLAGS)
 
 clean:
