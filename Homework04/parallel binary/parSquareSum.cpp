@@ -23,7 +23,7 @@
 typedef double Item;
 
 void readArray(char * fileName, Item ** a, int * n);
-double vectorSquareAndSum(std::vector<double> val, int numValues, int id, int numProcs);
+double vectorSquareAndSum(std::vector<double> val);
 char* processCmdLineArgs(int argc, char** argv);
 void check(FILE* fptr, char* fileName);
 long getFileSize(FILE* fPtr);
@@ -48,12 +48,9 @@ int main(int argc, char * argv[])
 
   char* fileName = processCmdLineArgs(argc, argv);
 
-  ParallelReader<double> 
-     reader(fileName, MPI_DOUBLE, id, numProcs);
+  ParallelReader<double> reader(fileName, MPI_DOUBLE, id, numProcs);
   std::vector<double> vec;
-
   reader.readChunk(vec);
-  long numItems = reader.getNumItemsInFile();
 
   if (argc != 2) {
     fprintf(stderr, "\n*** Usage: squareAndSum <inputFile>\n\n");
@@ -62,7 +59,7 @@ int main(int argc, char * argv[])
   readTime = MPI_Wtime() - startTime;
   sumStart = MPI_Wtime();
 
-  sum = vectorSquareAndSum(vec, numItems, id, numProcs);
+  sum = vectorSquareAndSum(vec);
 
 
   sumTime = MPI_Wtime() - sumStart;
@@ -100,15 +97,13 @@ char* processCmdLineArgs(int argc, char** argv) {
 /* vectorSquareAndSum sums the squares of the values
  *  in an vector of numeric Items.
  * Receive: val, a pointer to the head of an vector of Items;
- *          numValues, the number of values in the vector.
- *          id, process's id.
- *          numProcs, number of processes.
+ * 
  * Return: the sum of the values in the vector.
  */
-Item vectorSquareAndSum(std::vector<double> val, int numValues, int id, int numProcs) {
+Item vectorSquareAndSum(std::vector<double> val) {
   Item result = 0.0;
 
-  for (int i = 0; i < numValues/numProcs; i++) {
+  for (int i = 0; i < val.size(); i++) {
     result += (val[i] * val[i]);
   }
 
