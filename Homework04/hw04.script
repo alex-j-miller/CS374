@@ -1,6 +1,6 @@
-Script started on 2023-11-21 20:06:26-05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="194" LINES="11"]
-]0;ajm94@remotel2: ~/CS374/Homework04[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04[00m$ cd original/
-]0;ajm94@remotel2: ~/CS374/Homework04/original[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/original[00m$ cat squareAndSum.c
+Script started on 2023-11-29 01:29:25-05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="167" LINES="11"]
+]0;ajm94@remotel1: ~/CS374/Homework04[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04[00m$ cd original/
+]0;ajm94@remotel1: ~/CS374/Homework04/original[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/original[00m$ cat squareAndSum.c
 /* squareAndSum.c computes the sum of the squares
  *  of the values in an input file,
  *  whose name is given on the command-line.
@@ -107,13 +107,14 @@ Item arraySquareAndSum(Item* a, int numValues) {
   return result;
 }
 
-]0;ajm94@remotel2: ~/CS374/Homework04/original[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/original[00m$ make
+]0;ajm94@remotel1: ~/CS374/Homework04/original[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/original[00m$ make
 make: 'squareAndSum' is up to date.
-]0;ajm94@remotel2: ~/CS374/Homework04/original[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/original[00m$ ./squareAndSum /home/cs/374/exercises/04/10m-doubles.txt 
+]0;ajm94@remotel1: ~/CS374/Homework04/original[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/original[00m$ ./squareAndSum /home/cs/374/exercises/04/10m-doubles.txt 
 The sum of the squares of the values in the file '/home/cs/374/exercises/04/10m-doubles.txt' is 3.33284e+06
-Times: 2.609387, 0.024774, 2.634161
-]0;ajm94@remotel2: ~/CS374/Homework04/original[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/original[00m$ cd ../sequential\ binary/
-]0;ajm94@remotel2: ~/CS374/Homework04/sequential binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ cat squareAndSum.c
+Times: 2.238130, 0.025489, 2.263620
+]0;ajm94@remotel1: ~/CS374/Homework04/original[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/original[00m$ cd ../
+]0;ajm94@remotel1: ~/CS374/Homework04[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04[00m$ cd sequential\ binary/
+]0;ajm94@remotel1: ~/CS374/Homework04/sequential binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ cat squareAndSum.c 
 /* squareAndSum.c computes the sum of the squares
  *  of the values in an input file,
  *  whose name is given on the command-line.
@@ -241,13 +242,13 @@ long getFileSize(FILE* fPtr) {
     return res;
 }
 
-]0;ajm94@remotel2: ~/CS374/Homework04/sequential binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ make
+]0;ajm94@remotel1: ~/CS374/Homework04/sequential binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ make
 make: 'squareAndSum' is up to date.
-]0;ajm94@remotel2: ~/CS374/Homework04/sequential binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ makecat squareAndSum.cd ../sequential\ binary/./squareAndSum /home/cs/374/exercises/04/10m-doubles.txt [K[K[K[Kbin 
+]0;ajm94@remotel1: ~/CS374/Homework04/sequential binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ makecat squareAndSum.c d sequential\ binary/../[K./squareAndSum /home/cs/374/exercises/04/10m-doubles.txt [K[K[K[Kbin 
 The sum of the squares of the values in the file '/home/cs/374/exercises/04/10m-doubles.bin' is 3.33284e+06
-Times: 1.040583, 0.025695, 1.066278
-]0;ajm94@remotel2: ~/CS374/Homework04/sequential binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ cd ../parallel\ binary/
-]0;ajm94@remotel2: ~/CS374/Homework04/parallel binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ cat parSquareSum.cpp 
+Times: 0.164930, 0.025212, 0.190142
+]0;ajm94@remotel1: ~/CS374/Homework04/sequential binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/sequential binary[00m$ ./squareAndSum /home/cs/374/exercises/04/10m-doubles.bin [C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Kcd ../parallel\ binary/
+]0;ajm94@remotel1: ~/CS374/Homework04/parallel binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ cat parSquareSum.cpp 
 /* squareAndSum.c computes the sum of the squares
  *  of the values in an input file,
  *  whose name is given on the command-line.
@@ -273,7 +274,7 @@ Times: 1.040583, 0.025695, 1.066278
 typedef double Item;
 
 void readArray(char * fileName, Item ** a, int * n);
-double vectorSquareAndSum(std::vector<double> val, int numValues, int id, int numProcs);
+double vectorSquareAndSum(std::vector<double> val);
 char* processCmdLineArgs(int argc, char** argv);
 void check(FILE* fptr, char* fileName);
 long getFileSize(FILE* fPtr);
@@ -298,12 +299,9 @@ int main(int argc, char * argv[])
 
   char* fileName = processCmdLineArgs(argc, argv);
 
-  ParallelReader<double> 
-     reader(fileName, MPI_DOUBLE, id, numProcs);
+  ParallelReader<double> reader(fileName, MPI_DOUBLE, id, numProcs);
   std::vector<double> vec;
-
   reader.readChunk(vec);
-  long numItems = reader.getNumItemsInFile();
 
   if (argc != 2) {
     fprintf(stderr, "\n*** Usage: squareAndSum <inputFile>\n\n");
@@ -312,7 +310,7 @@ int main(int argc, char * argv[])
   readTime = MPI_Wtime() - startTime;
   sumStart = MPI_Wtime();
 
-  sum = vectorSquareAndSum(vec, numItems, id, numProcs);
+  sum = vectorSquareAndSum(vec);
 
 
   sumTime = MPI_Wtime() - sumStart;
@@ -350,26 +348,24 @@ char* processCmdLineArgs(int argc, char** argv) {
 /* vectorSquareAndSum sums the squares of the values
  *  in an vector of numeric Items.
  * Receive: val, a pointer to the head of an vector of Items;
- *          numValues, the number of values in the vector.
- *          id, process's id.
- *          numProcs, number of processes.
+ * 
  * Return: the sum of the values in the vector.
  */
-Item vectorSquareAndSum(std::vector<double> val, int numValues, int id, int numProcs) {
+Item vectorSquareAndSum(std::vector<double> val) {
   Item result = 0.0;
 
-  for (int i = 0; i < numValues/numProcs; i++) {
+  for (int i = 0; i < val.size(); i++) {
     result += (val[i] * val[i]);
   }
 
   return result;
-}]0;ajm94@remotel2: ~/CS374/Homework04/parallel binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ make
+}]0;ajm94@remotel1: ~/CS374/Homework04/parallel binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ make
 make: 'parSquareSum' is up to date.
-]0;ajm94@remotel2: ~/CS374/Homework04/parallel binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ ./[K[Kmpirun -np 6 ./parSquareSum /home/cs/374/exercises/04/10m-doubles.bin 
+]0;ajm94@remotel1: ~/CS374/Homework04/parallel binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ mpirun -np 6 ./parSquareSum /home/cs/374/exercises/04/10m-doubles.bin 
 
-The sum of the squares of the values in the file '/home/cs/374/exercises/04/10m-doubles.bin' is 3.33283e+06
+The sum of the squares of the values in the file '/home/cs/374/exercises/04/10m-doubles.bin' is 3.33284e+06
 Read Time:	Sum Time:	Total Time:
-0.200536 	0.027920  	0.228455
-]0;ajm94@remotel2: ~/CS374/Homework04/parallel binary[01;32majm94@remotel2[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ exit
+0.143052 	0.025385  	0.168437
+]0;ajm94@remotel1: ~/CS374/Homework04/parallel binary[01;32majm94@remotel1[00m:[01;34m~/CS374/Homework04/parallel binary[00m$ exit
 
-Script done on 2023-11-21 20:08:08-05:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2023-11-29 01:31:27-05:00 [COMMAND_EXIT_CODE="0"]
