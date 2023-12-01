@@ -83,11 +83,11 @@ int main(int argc, char ** argv) {
     // setup problem
     seed_by_time(0);
     forest=allocate_forest(forest_size);
-    prob_spread = (double *) malloc (n_probs*sizeof(double));
-    percent_burned = (double *) malloc (n_probs*sizeof(double));
-    iter_count = (double *) malloc (n_probs*sizeof(double));
-    total_percent = (double *) malloc (n_probs*sizeof(double));
-    total_iter = (double *) malloc (n_probs*sizeof(double));
+    prob_spread = (double *) calloc (n_probs,sizeof(double));
+    percent_burned = (double *) calloc (n_probs,sizeof(double));
+    iter_count = (double *) calloc (n_probs,sizeof(double));
+    total_percent = (double *) calloc (n_probs,sizeof(double));
+    total_iter = (double *) calloc (n_probs,sizeof(double));
 
     getChunkStartStopValues(id, numProcesses, n_trials, &start, &stop);
 
@@ -102,28 +102,27 @@ int main(int argc, char ** argv) {
     // set up the initial values of the array
     for (i_prob = 0; i_prob < n_probs; i_prob++) {
         prob_spread[i_prob] = prob_min + (double)i_prob * prob_step;
-        percent_burned[i_prob]=0.0;
-        iter_count[i_prob]=0;
+        // percent_burned[i_prob]=0.0;
+        // iter_count[i_prob]=0;
     }
 
     for (i_trial = start; i_trial < stop; ++i_trial) {
         for (i_prob = 0; i_prob < n_probs; i_prob++) {
-            iter_count[i_prob] = burn_until_out(forest_size,forest,prob_spread[i_prob],
-                forest_size/2,forest_size/2);
+            iter_count[i_prob] += burn_until_out(forest_size,forest,prob_spread[i_prob],forest_size/2,forest_size/2);
             percent_burned[i_prob]+=get_percent_burned(forest_size,forest);
             
         }
     }
 
-    MPI_Reduce(percent_burned, total_percent, n_probs, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     MPI_Reduce(iter_count, total_iter, n_probs, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Reduce(percent_burned, total_percent, n_probs, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // do some clean up
     if (id == MASTER) {
         for (i_prob = 0; i_prob < n_probs; i_prob++) {
             total_percent[i_prob]/=n_trials;
-            total_iter[i_prob]/=n_trials;
-            printf("%lf \t %lf \t%f\n", prob_spread[i_prob], total_percent[i_prob], total_iter[i_prob]);
+            iter_count[i_prob]/=n_trials;
+            printf("%lf\t%lf\t%f\n", prob_spread[i_prob], total_percent[i_prob], iter_count[i_prob]);
         }
 
         printf("\nProcs\tSize\tTime\n%d\t%d\t%f\n", numProcesses, forest_size, MPI_Wtime() - start_time);
