@@ -49,12 +49,12 @@ int main(int argc, char ** argv) {
     int i_prob;
     int n_probs=101;
     int do_display=0; // show the display
-    int * iter_count;
+    double * iter_count;
     double start_time = 0;
     int numProcesses = 0;
     int id = 0;
     double * total_percent;
-    int * total_iter;
+    double * total_iter;
     xgraph thegraph;
     const int MASTER = 0;
     unsigned start = -1, stop = -1;
@@ -85,9 +85,9 @@ int main(int argc, char ** argv) {
     forest=allocate_forest(forest_size);
     prob_spread = (double *) malloc (n_probs*sizeof(double));
     percent_burned = (double *) malloc (n_probs*sizeof(double));
-    iter_count = (int *) malloc (n_probs*sizeof(int));
+    iter_count = (double *) malloc (n_probs*sizeof(double));
     total_percent = (double *) malloc (n_probs*sizeof(double));
-    total_iter = (int *) malloc (n_probs*sizeof(int));
+    total_iter = (double *) malloc (n_probs*sizeof(double));
 
     getChunkStartStopValues(id, numProcesses, n_trials, &start, &stop);
 
@@ -95,6 +95,7 @@ int main(int argc, char ** argv) {
     // average burn and output
     prob_step = (prob_max-prob_min)/(double)(n_probs-1);
     if (id == MASTER) {
+        
         printf("Probability of fire spreading | Average percent burned | Number of Iterations\n");
     }
 
@@ -121,10 +122,11 @@ int main(int argc, char ** argv) {
     if (id == MASTER) {
         for (i_prob = 0; i_prob < n_probs; i_prob++) {
             total_percent[i_prob]/=n_trials;
-            printf("%lf \t %lf \t%d\n", prob_spread[i_prob], total_percent[i_prob], iter_count[i_prob]);
+            total_iter[i_prob]/=n_trials;
+            printf("%lf \t %lf \t%f\n", prob_spread[i_prob], total_percent[i_prob], total_iter[i_prob]);
         }
 
-        printf("Total Time: %f\n", MPI_Wtime() - start_time);
+        printf("\nProcs\tSize\tTime\n%d\t%d\t%f\n", numProcesses, forest_size, MPI_Wtime() - start_time);
 
         // plot graph
         if (do_display==1) {
