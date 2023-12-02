@@ -113,16 +113,17 @@ int main(int argc, char ** argv) {
             
         }
     }
-
-    MPI_Reduce(iter_count, total_iter, n_probs, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    
+    MPI_Reduce(iter_count, total_iter, n_probs, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     MPI_Reduce(percent_burned, total_percent, n_probs, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // do some clean up
     if (id == MASTER) {
         for (i_prob = 0; i_prob < n_probs; i_prob++) {
             total_percent[i_prob]/=n_trials;
-            iter_count[i_prob]/=n_trials;
-            printf("%lf\t%lf\t%f\n", prob_spread[i_prob], total_percent[i_prob], iter_count[i_prob]);
+            total_iter[i_prob]/=n_trials;
+            // iter_count[i_prob]*=numProcesses;
+            printf("%lf\t%lf\t%f\n", prob_spread[i_prob], total_percent[i_prob], total_iter[i_prob]);
         }
 
         printf("\nProcs\tSize\tTime\n%d\t%d\t%f\n", numProcesses, forest_size, MPI_Wtime() - start_time);
